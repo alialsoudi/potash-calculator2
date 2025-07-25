@@ -75,27 +75,40 @@
     const BELT_SPEED = 2.75; // m/s
 
     function calculate() {
-      const density = parseFloat(document.getElementById("potash_type").value);
-      const loadingRate = parseFloat(document.getElementById("loading_rate").value);
+      const density = parseFloat(document.getElementById("potash_type").value); // kg/m³
+      const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
       const locationInput = parseFloat(document.getElementById("location_input").value);
 
-      if (isNaN(density) || isNaN(loadingRate) || isNaN(locationInput) ||
-          loadingRate <= 0 || locationInput <= 0) {
+      if (isNaN(density) || isNaN(loadingRateTons) || isNaN(locationInput) ||
+          loadingRateTons <= 0 || locationInput <= 0) {
         document.getElementById("results").innerHTML =
           `<span style="color:red;">Please enter valid values for all fields.</span>`;
         return;
       }
 
       const location = locationInput + 100;
-      const loadingRateKgPerSec = loadingRate * 1000 / 3600;
-      const crossSectionalArea = loadingRateKgPerSec / (density * BELT_SPEED);
-      const remainingPotashVolume = crossSectionalArea * location;
-      const remainingPotashMass = remainingPotashVolume * density;
-      const remainingPotashTons = remainingPotashMass / 1000;
+
+      // Convert loading rate to kg/sec
+      const loadingRateKgPerSec = loadingRateTons * 1000 / 3600;
+
+      // Convert to volume rate (m³/sec)
+      const loadingRateM3PerSec = loadingRateKgPerSec / density;
+
+      // cross-sectional area (m²)
+      const crossSectionalArea = loadingRateM3PerSec / BELT_SPEED;
+
+      // volume remaining on belt (m³)
+      const remainingVolume = crossSectionalArea * location;
+
+      // mass (kg)
+      const remainingMass = remainingVolume * density;
+
+      // convert to tons
+      const remainingTons = remainingMass / 1000;
 
       document.getElementById("results").innerHTML = `
         <strong>Remaining Potash:</strong><br>
-        <span style="font-size: 24px; color: #2c3e50;">${remainingPotashTons.toFixed(2)} tons</span>
+        <span style="font-size: 24px; color: #2c3e50;">${remainingTons.toFixed(2)} tons</span>
       `;
     }
   </script>
