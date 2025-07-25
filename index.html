@@ -19,10 +19,16 @@
     label {
       font-weight: bold;
     }
-    input, select {
+    input, select, button {
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
     .result {
       background-color: #fff;
@@ -45,17 +51,19 @@
   <h1>Potash Quantity Calculator</h1>
 
   <label>Potash Type:</label>
-  <select id="potash_type" onchange="calculate()">
+  <select id="potash_type">
     <option value="granular">Granular (1150 kg/m³)</option>
     <option value="standard">Standard (1200 kg/m³)</option>
     <option value="fine">Fine (1250 kg/m³)</option>
   </select>
 
   <label>Loading Rate (tons/hour):</label>
-  <input type="number" id="loading_rate" value="1500" step="1" oninput="calculate()">
+  <input type="number" id="loading_rate" placeholder="Enter loading rate" step="1">
 
   <label>Location (meters):</label>
-  <input type="number" id="location_input" value="250" step="1" oninput="calculate()">
+  <input type="number" id="location_input" placeholder="Enter location" step="1">
+
+  <button onclick="calculate()">Calculate</button>
 
   <div class="result" id="results"></div>
 
@@ -80,26 +88,23 @@
       const loadingRate = parseFloat(document.getElementById("loading_rate").value);
       const locationInput = parseFloat(document.getElementById("location_input").value);
 
-      const location = locationInput + 100;
-
-      if (loadingRate > 0 && locationInput > 0 && density > 0) {
-        const loadingRateKgPerSec = loadingRate * 1000 / 3600;
-        const crossSectionalArea = loadingRateKgPerSec / (density * BELT_SPEED);
-        const remainingPotashVolume = crossSectionalArea * location;
-        const remainingPotashMass = remainingPotashVolume * density;
-        const remainingPotashTons = remainingPotashMass / 1000;
-
-        document.getElementById("results").innerHTML = `
-          <strong>Remaining Potash:</strong><br>
-          <span style="font-size: 24px; color: #2c3e50;">${remainingPotashTons.toFixed(2)} tons</span>
-        `;
-      } else {
-        document.getElementById("results").innerHTML = `<span style="color:red;">Please enter valid values (greater than 0).</span>`;
+      if (!loadingRate || !locationInput || loadingRate <= 0 || locationInput <= 0) {
+        document.getElementById("results").innerHTML = `<span style="color:red;">Please enter valid values for loading rate and location.</span>`;
+        return;
       }
-    }
 
-    // run calculation on page load
-    calculate();
+      const location = locationInput + 100;
+      const loadingRateKgPerSec = loadingRate * 1000 / 3600;
+      const crossSectionalArea = loadingRateKgPerSec / (density * BELT_SPEED);
+      const remainingPotashVolume = crossSectionalArea * location;
+      const remainingPotashMass = remainingPotashVolume * density;
+      const remainingPotashTons = remainingPotashMass / 1000;
+
+      document.getElementById("results").innerHTML = `
+        <strong>Remaining Potash:</strong><br>
+        <span style="font-size: 24px; color: #2c3e50;">${remainingPotashTons.toFixed(2)} tons</span>
+      `;
+    }
   </script>
 </body>
 </html>
