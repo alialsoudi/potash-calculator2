@@ -52,9 +52,9 @@
 
   <label>Potash Type:</label>
   <select id="potash_type">
-    <option value="granular">Granular (1150 kg/m³)</option>
-    <option value="standard">Standard (1200 kg/m³)</option>
-    <option value="fine">Fine (1250 kg/m³)</option>
+    <option value="1150">Granular (1150 kg/m³)</option>
+    <option value="1200">Standard (1200 kg/m³)</option>
+    <option value="1250">Fine (1250 kg/m³)</option>
   </select>
 
   <label>Loading Rate (tons/hour):</label>
@@ -74,29 +74,15 @@
   <script>
     const BELT_SPEED = 2.75; // m/s
 
-    function getDensity(type) {
-      switch(type) {
-        case "standard": return 1200;
-        case "fine": return 1250;
-        default: return 1150; // granular
-      }
-    }
-
     function calculate() {
-      const type = document.getElementById("potash_type").value;
-      const density = getDensity(type);
-      const loadingRateInput = document.getElementById("loading_rate").value;
-      const locationInputRaw = document.getElementById("location_input").value;
+      const density = parseFloat(document.getElementById("potash_type").value);
+      const loadingRate = parseFloat(document.getElementById("loading_rate").value);
+      const locationInput = parseFloat(document.getElementById("location_input").value);
 
-      const loadingRate = parseFloat(loadingRateInput);
-      const locationInput = parseFloat(locationInputRaw);
-
-      console.log("Density:", density);
-      console.log("Loading Rate:", loadingRate);
-      console.log("Location:", locationInput);
-
-      if (isNaN(loadingRate) || isNaN(locationInput) || loadingRate <= 0 || locationInput <= 0) {
-        document.getElementById("results").innerHTML = `<span style="color:red;">Please enter valid values for loading rate and location.</span>`;
+      if (isNaN(density) || isNaN(loadingRate) || isNaN(locationInput) ||
+          loadingRate <= 0 || locationInput <= 0) {
+        document.getElementById("results").innerHTML =
+          `<span style="color:red;">Please enter valid values for all fields.</span>`;
         return;
       }
 
