@@ -85,10 +85,17 @@
     function calculate() {
       const type = document.getElementById("potash_type").value;
       const density = getDensity(type);
-      const loadingRate = parseFloat(document.getElementById("loading_rate").value);
-      const locationInput = parseFloat(document.getElementById("location_input").value);
+      const loadingRateInput = document.getElementById("loading_rate").value;
+      const locationInputRaw = document.getElementById("location_input").value;
 
-      if (!loadingRate || !locationInput || loadingRate <= 0 || locationInput <= 0) {
+      const loadingRate = parseFloat(loadingRateInput);
+      const locationInput = parseFloat(locationInputRaw);
+
+      console.log("Density:", density);
+      console.log("Loading Rate:", loadingRate);
+      console.log("Location:", locationInput);
+
+      if (isNaN(loadingRate) || isNaN(locationInput) || loadingRate <= 0 || locationInput <= 0) {
         document.getElementById("results").innerHTML = `<span style="color:red;">Please enter valid values for loading rate and location.</span>`;
         return;
       }
