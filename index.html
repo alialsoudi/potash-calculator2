@@ -37,6 +37,8 @@
       margin-top: 20px;
       font-size: 18px;
       text-align: center;
+      white-space: pre-line;
+      text-align: left;
     }
     footer {
       text-align: center;
@@ -75,14 +77,14 @@
     const BELT_SPEED = 2.75; // m/s
 
     function calculate() {
-      const density = parseFloat(document.getElementById("potash_type").value); // kg/m³
+      const density = parseFloat(document.getElementById("potash_type").value);
       const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
       const locationInput = parseFloat(document.getElementById("location_input").value);
 
       if (isNaN(density) || isNaN(loadingRateTons) || isNaN(locationInput) ||
           loadingRateTons <= 0 || locationInput <= 0) {
         document.getElementById("results").innerHTML =
-          `<span style="color:red;">Please enter valid values for all fields.</span>`;
+          `Please enter valid values for all fields.`;
         return;
       }
 
@@ -106,10 +108,15 @@
       // convert to tons
       const remainingTons = remainingMass / 1000;
 
-      document.getElementById("results").innerHTML = `
-        <strong>Remaining Potash:</strong><br>
-        <span style="font-size: 24px; color: #2c3e50;">${remainingTons.toFixed(2)} tons</span>
-      `;
+      document.getElementById("results").innerHTML = 
+        `Density: ${density} kg/m³
+Loading Rate: ${loadingRateKgPerSec.toFixed(2)} kg/s
+Volume Flow Rate: ${loadingRateM3PerSec.toFixed(5)} m³/s
+Cross Sectional Area: ${crossSectionalArea.toFixed(5)} m²
+Remaining Volume: ${remainingVolume.toFixed(2)} m³
+Remaining Mass: ${remainingMass.toFixed(2)} kg
+
+Remaining Potash: ${remainingTons.toFixed(2)} tons`;
     }
   </script>
 </body>
