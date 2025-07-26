@@ -25,6 +25,7 @@
       width: 100%;
       padding: 10px;
       margin-top: 5px;
+      box-sizing: border-box;
     }
     button {
       background-color: #28a745;
@@ -33,6 +34,7 @@
       border: none;
       cursor: pointer;
       margin-top: 20px;
+      padding: 12px;
     }
     .result {
       background-color: white;
@@ -40,6 +42,7 @@
       margin-top: 20px;
       border: 1px solid #ccc;
       font-size: 18px;
+      min-height: 60px;
     }
     .radio-group {
       margin-top: 10px;
@@ -48,6 +51,7 @@
       font-weight: normal;
       display: block;
       margin-bottom: 5px;
+      cursor: pointer;
     }
     footer {
       text-align: center;
@@ -69,10 +73,10 @@
   </div>
 
   <label>Loading Rate (tons/hour):</label>
-  <input type="number" id="loading_rate" placeholder="Enter loading rate in tons/hour">
+  <input type="number" id="loading_rate" placeholder="Enter loading rate in tons/hour" min="0" step="any">
 
   <label>Location on Belt (meters):</label>
-  <input type="number" id="location_input" placeholder="Enter location on belt">
+  <input type="number" id="location_input" placeholder="Enter location on belt" min="0" step="any">
 
   <button onclick="calculate()">Calculate</button>
 
@@ -95,28 +99,38 @@
         return;
       }
 
+      const correctionFactors = {
+        1150: 1.0,
+        1200: 1200 / 1150,
+        1250: 1250 / 1150
+      };
+
+      // نعدل معدل التحميل حسب الكثافة
+      const correctedLoadingRate = loadingRateTons * correctionFactors[density];
+
       const location = locationInput + 100;
 
-      // Step 1: تحويل معدل التحميل إلى كغ/ثانية
-      const loadingRateKgSec = (loadingRateTons * 1000) / 3600;
+      // تحويل معدل التحميل إلى كغ/ثانية
+      const loadingRateKgSec = (correctedLoadingRate * 1000) / 3600;
 
-      // Step 2: نحسب الحجم الذي يتم تحميله كل ثانية (م³/ثانية)
+      // نحسب الحجم الذي يتم تحميله كل ثانية (م³/ثانية)
       const volumePerSecond = loadingRateKgSec / density;
 
-      // Step 3: مساحة المقطع العرضي (م²)
+      // مساحة المقطع العرضي (م²)
       const crossSectionArea = volumePerSecond / BELT_SPEED;
 
-      // Step 4: الحجم المتبقي على السير (م³)
+      // الحجم المتبقي على السير (م³)
       const remainingVolume = crossSectionArea * location;
 
-      // Step 5: الوزن المتبقي (كغ)
+      // الوزن المتبقي (كغ)
       const remainingMassKg = remainingVolume * density;
 
-      // Step 6: نحوله إلى طن
+      // نحوله إلى طن
       const remainingTons = remainingMassKg / 1000;
 
       document.getElementById("results").innerHTML = `
         <strong>Selected Density:</strong> ${density} kg/m³<br>
+        <strong>Corrected Loading Rate:</strong> ${correctedLoadingRate.toFixed(2)} tons/hour<br>
         <strong>Remaining Potash on Belt:</strong> ${remainingTons.toFixed(2)} tons
       `;
     }
