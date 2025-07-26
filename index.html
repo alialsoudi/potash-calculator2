@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Potash Quantity Calculator</title>
+  <title>Potash Remaining Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       max-width: 600px;
       margin: auto;
-      background-color: #f0f0f0;
+      background-color: #f9f9f9;
       padding: 20px;
     }
     h1 {
@@ -21,37 +21,31 @@
       display: block;
       margin-top: 15px;
     }
-    input[type="number"], button {
+    select, input[type="number"], button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       box-sizing: border-box;
+      font-size: 16px;
     }
     button {
-      background-color: #28a745;
+      background-color: #007bff;
       color: white;
-      font-size: 16px;
       border: none;
       cursor: pointer;
       margin-top: 20px;
       padding: 12px;
+      font-weight: bold;
+      border-radius: 4px;
     }
     .result {
       background-color: white;
       padding: 20px;
       margin-top: 20px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       font-size: 18px;
       min-height: 60px;
-    }
-    .radio-group {
-      margin-top: 10px;
-    }
-    .radio-group label {
-      font-weight: normal;
-      display: block;
-      margin-bottom: 5px;
-      cursor: pointer;
+      border-radius: 4px;
     }
     footer {
       text-align: center;
@@ -59,24 +53,31 @@
       color: gray;
       font-size: 14px;
     }
+    .density-display {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
   <h1>Potash Remaining Calculator</h1>
 
-  <label>Choose Potash Type:</label>
-  <div class="radio-group">
-    <label><input type="radio" name="potash" value="1150" checked> Granular (1150 kg/m³)</label>
-    <label><input type="radio" name="potash" value="1200"> Standard (1200 kg/m³)</label>
-    <label><input type="radio" name="potash" value="1250"> Fine (1250 kg/m³)</label>
-  </div>
+  <label for="potash_type">Select Potash Type:</label>
+  <select id="potash_type">
+    <option value="1125">Granular (الحبيبي) — 1125 kg/m³</option>
+    <option value="1175">Standard (الستاندر) — 1175 kg/m³</option>
+    <option value="1250">Fine (الناعم - الفاين) — 1250 kg/m³</option>
+  </select>
 
-  <label>Loading Rate (tons/hour):</label>
-  <input type="number" id="loading_rate" placeholder="Enter loading rate in tons/hour" min="0" step="any">
+  <div class="density-display" id="density_display">Selected density: 1125 kg/m³</div>
 
-  <label>Location on Belt (meters):</label>
-  <input type="number" id="location_input" placeholder="Enter location on belt" min="0" step="any">
+  <label for="loading_rate">Loading Rate (tons/hour):</label>
+  <input type="number" id="loading_rate" placeholder="Enter loading rate in tons/hour" min="0" step="any" />
+
+  <label for="location_input">Location on Belt (meters):</label>
+  <input type="number" id="location_input" placeholder="Enter location on belt" min="0" step="any" />
 
   <button onclick="calculate()">Calculate</button>
 
@@ -86,55 +87,54 @@
     &copy; 2025 Ali Alsaudi. All rights reserved.
   </footer>
 
-  <script>
-    const BELT_SPEED = 2.75; // m/s
+<script>
+  const BELT_SPEED = 2.75; // m/s
 
-    function calculate() {
-      const density = parseFloat(document.querySelector('input[name="potash"]:checked').value);
-      const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
-      const locationInput = parseFloat(document.getElementById("location_input").value);
+  const potashTypeSelect = document.getElementById('potash_type');
+  const densityDisplay = document.getElementById('density_display');
 
-      if (!density || !loadingRateTons || !locationInput || loadingRateTons <= 0 || locationInput <= 0) {
-        document.getElementById("results").innerHTML = `Please enter valid values.`;
-        return;
-      }
+  potashTypeSelect.addEventListener('change', () => {
+    const density = potashTypeSelect.value;
+    densityDisplay.textContent = `Selected density: ${density} kg/m³`;
+  });
 
-      const correctionFactors = {
-        1150: 1.0,
-        1200: 1200 / 1150,
-        1250: 1250 / 1150
-      };
+  function calculate() {
+    const density = parseFloat(potashTypeSelect.value);
+    const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
+    const locationInput = parseFloat(document.getElementById("location_input").value);
 
-      // نعدل معدل التحميل حسب الكثافة
-      const correctedLoadingRate = loadingRateTons * correctionFactors[density];
-
-      const location = locationInput + 100;
-
-      // تحويل معدل التحميل إلى كغ/ثانية
-      const loadingRateKgSec = (correctedLoadingRate * 1000) / 3600;
-
-      // نحسب الحجم الذي يتم تحميله كل ثانية (م³/ثانية)
-      const volumePerSecond = loadingRateKgSec / density;
-
-      // مساحة المقطع العرضي (م²)
-      const crossSectionArea = volumePerSecond / BELT_SPEED;
-
-      // الحجم المتبقي على السير (م³)
-      const remainingVolume = crossSectionArea * location;
-
-      // الوزن المتبقي (كغ)
-      const remainingMassKg = remainingVolume * density;
-
-      // نحوله إلى طن
-      const remainingTons = remainingMassKg / 1000;
-
-      document.getElementById("results").innerHTML = `
-        <strong>Selected Density:</strong> ${density} kg/m³<br>
-        <strong>Corrected Loading Rate:</strong> ${correctedLoadingRate.toFixed(2)} tons/hour<br>
-        <strong>Remaining Potash on Belt:</strong> ${remainingTons.toFixed(2)} tons
-      `;
+    if (!density || !loadingRateTons || !locationInput || loadingRateTons <= 0 || locationInput <= 0) {
+      document.getElementById("results").innerHTML = `Please enter valid positive values for all fields.`;
+      return;
     }
-  </script>
+
+    // زيادة الموقع 100 متر كما في السابق
+    const location = locationInput + 100;
+
+    // تحويل معدل التحميل إلى كغ/ثانية
+    const loadingRateKgSec = (loadingRateTons * 1000) / 3600;
+
+    // نحسب الحجم الذي يتم تحميله كل ثانية (م³/ثانية)
+    const volumePerSecond = loadingRateKgSec / density;
+
+    // مساحة المقطع العرضي (م²)
+    const crossSectionArea = volumePerSecond / BELT_SPEED;
+
+    // الحجم المتبقي على السير (م³)
+    const remainingVolume = crossSectionArea * location;
+
+    // الوزن المتبقي (كغ)
+    const remainingMassKg = remainingVolume * density;
+
+    // نحوله إلى طن
+    const remainingTons = remainingMassKg / 1000;
+
+    document.getElementById("results").innerHTML = `
+      <strong>Selected Density:</strong> ${density} kg/m³<br>
+      <strong>Remaining Potash on Belt:</strong> ${remainingTons.toFixed(2)} tons
+    `;
+  }
+</script>
 
 </body>
 </html>
