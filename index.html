@@ -3,32 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Potash Calculator</title>
+  <title>Potash Quantity Calculator</title>
   <style>
     body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 20px auto;
+      font-family: Arial, sans-serif;
       padding: 20px;
-      background: #f5f5f5;
+      max-width: 600px;
+      margin: auto;
+      background-color: #f7f7f7;
     }
-    h1 { text-align: center; }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    label {
+      font-weight: bold;
+    }
     input, select, button {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 8px;
+      margin-bottom: 15px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
     .result {
-      background: white;
-      padding: 20px;
+      background-color: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
       margin-top: 20px;
-      border: 1px solid #ccc;
+      font-size: 20px;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: gray;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Potash Remaining Calculator</h1>
+  <h1>Potash Quantity Calculator</h1>
 
   <label>Potash Type:</label>
   <select id="potash_type">
@@ -38,45 +58,47 @@
   </select>
 
   <label>Loading Rate (tons/hour):</label>
-  <input type="number" id="loading_rate" placeholder="Enter loading rate">
+  <input type="number" id="loading_rate" placeholder="Enter loading rate" step="1">
 
   <label>Location (meters):</label>
-  <input type="number" id="location" placeholder="Enter location on belt">
+  <input type="number" id="location_input" placeholder="Enter location" step="1">
 
   <button onclick="calculate()">Calculate</button>
 
-  <div class="result" id="output"></div>
+  <div class="result" id="results"></div>
+
+  <footer>
+    &copy; 2025 Ali Alsaudi. All rights reserved.
+  </footer>
 
   <script>
+    const BELT_SPEED = 2.75; // m/s
+
     function calculate() {
       const density = parseFloat(document.getElementById("potash_type").value);
       const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
-      const locationInput = parseFloat(document.getElementById("location").value);
-      const beltSpeed = 2.75; // m/s
+      const locationInput = parseFloat(document.getElementById("location_input").value);
 
-      if (!density || !loadingRateTons || !locationInput) {
-        document.getElementById("output").innerText = "Please enter all fields correctly.";
+      if (isNaN(density) || isNaN(loadingRateTons) || isNaN(locationInput) ||
+          loadingRateTons <= 0 || locationInput <= 0) {
+        document.getElementById("results").innerHTML =
+          `Please enter valid values for all fields.`;
         return;
       }
 
       const location = locationInput + 100;
-      const loadingRateKgSec = (loadingRateTons * 1000) / 3600;
-      const volumeFlowRate = loadingRateKgSec / density; // m³/s
-      const crossSectionArea = volumeFlowRate / beltSpeed; // m²
-      const remainingVolume = crossSectionArea * location; // m³
-      const remainingMass = remainingVolume * density; // kg
-      const remainingTons = remainingMass / 1000; // tons
 
-      document.getElementById("output").innerHTML = `
-        <strong>Result:</strong><br>
-        Potash Density: ${density} kg/m³<br>
-        Loading Rate: ${loadingRateTons} tons/hr<br>
-        Location: ${locationInput} m (used: ${location} m)<br>
-        <hr>
+      const loadingRateKgPerSec = loadingRateTons * 1000 / 3600;
+      const loadingRateM3PerSec = loadingRateKgPerSec / density;
+      const crossSectionalArea = loadingRateM3PerSec / BELT_SPEED;
+      const remainingVolume = crossSectionalArea * location;
+      const remainingMass = remainingVolume * density;
+      const remainingTons = remainingMass / 1000;
+
+      document.getElementById("results").innerHTML = `
         Remaining Potash: <strong>${remainingTons.toFixed(2)} tons</strong>
       `;
     }
   </script>
-
 </body>
 </html>
