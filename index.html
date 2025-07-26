@@ -18,10 +18,10 @@
     }
     label {
       font-weight: bold;
-      margin-top: 10px;
       display: block;
+      margin-top: 15px;
     }
-    input, select, button {
+    input[type="number"], button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -32,7 +32,7 @@
       font-size: 16px;
       border: none;
       cursor: pointer;
-      margin-top: 15px;
+      margin-top: 20px;
     }
     .result {
       background-color: white;
@@ -40,6 +40,14 @@
       margin-top: 20px;
       border: 1px solid #ccc;
       font-size: 18px;
+    }
+    .radio-group {
+      margin-top: 10px;
+    }
+    .radio-group label {
+      font-weight: normal;
+      display: block;
+      margin-bottom: 5px;
     }
     footer {
       text-align: center;
@@ -53,17 +61,17 @@
 
   <h1>Potash Remaining Calculator</h1>
 
-  <label>Potash Type:</label>
-  <select id="potash_type">
-    <option value="1150">Granular (1150 kg/m³)</option>
-    <option value="1200">Standard (1200 kg/m³)</option>
-    <option value="1250">Fine (1250 kg/m³)</option>
-  </select>
+  <label>Choose Potash Type:</label>
+  <div class="radio-group">
+    <label><input type="radio" name="potash" value="1150" checked> Granular (1150 kg/m³)</label>
+    <label><input type="radio" name="potash" value="1200"> Standard (1200 kg/m³)</label>
+    <label><input type="radio" name="potash" value="1250"> Fine (1250 kg/m³)</label>
+  </div>
 
   <label>Loading Rate (tons/hour):</label>
   <input type="number" id="loading_rate" placeholder="Enter loading rate in tons/hour">
 
-  <label>Location (meters):</label>
+  <label>Location on Belt (meters):</label>
   <input type="number" id="location_input" placeholder="Enter location on belt">
 
   <button onclick="calculate()">Calculate</button>
@@ -78,7 +86,7 @@
     const BELT_SPEED = 2.75; // m/s
 
     function calculate() {
-      const density = parseFloat(document.getElementById("potash_type").value);
+      const density = parseFloat(document.querySelector('input[name="potash"]:checked').value);
       const loadingRateTons = parseFloat(document.getElementById("loading_rate").value);
       const locationInput = parseFloat(document.getElementById("location_input").value);
 
@@ -108,7 +116,7 @@
       const remainingTons = remainingMassKg / 1000;
 
       document.getElementById("results").innerHTML = `
-        <strong>Potash Type Density:</strong> ${density} kg/m³<br>
+        <strong>Selected Density:</strong> ${density} kg/m³<br>
         <strong>Remaining Potash on Belt:</strong> ${remainingTons.toFixed(2)} tons
       `;
     }
