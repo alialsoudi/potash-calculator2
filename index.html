@@ -108,11 +108,18 @@
       return;
     }
 
-    // زيادة الموقع 100 متر كما في السابق
+    // معامل تصحيح معدل التحميل حسب الكثافة
+    const baseDensity = 1125; // كثافة الحبيبي الأساسية
+
+    const correctionFactor = density / baseDensity;
+
+    // معدل تحميل معدل
+    const correctedLoadingRate = loadingRateTons * correctionFactor;
+
     const location = locationInput + 100;
 
     // تحويل معدل التحميل إلى كغ/ثانية
-    const loadingRateKgSec = (loadingRateTons * 1000) / 3600;
+    const loadingRateKgSec = (correctedLoadingRate * 1000) / 3600;
 
     // نحسب الحجم الذي يتم تحميله كل ثانية (م³/ثانية)
     const volumePerSecond = loadingRateKgSec / density;
@@ -131,6 +138,8 @@
 
     document.getElementById("results").innerHTML = `
       <strong>Selected Density:</strong> ${density} kg/m³<br>
+      <strong>Correction Factor:</strong> ${correctionFactor.toFixed(3)}<br>
+      <strong>Corrected Loading Rate:</strong> ${correctedLoadingRate.toFixed(2)} tons/hour<br>
       <strong>Remaining Potash on Belt:</strong> ${remainingTons.toFixed(2)} tons
     `;
   }
